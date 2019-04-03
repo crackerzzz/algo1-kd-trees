@@ -1,9 +1,13 @@
+import java.util.Iterator;
 import java.util.TreeSet;
 
+import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.Point2D;
 import edu.princeton.cs.algs4.RectHV;
 
 public class PointSET {
+	public static final Point2D MIN = new Point2D(0.0, 0.0);
+	public static final Point2D MAX = new Point2D(1.0, 1.0);
 	private final TreeSet<Point2D> bst;
 
 	// construct an empty set of points
@@ -56,18 +60,49 @@ public class PointSET {
 		if (p == null) {
 			throw new IllegalArgumentException();
 		}
-		final Point2D nearest = findNearest(p);
-		System.out.println("nearest neighbour for " + p + " is " + nearest);
-		return nearest;
+		return findNearest(p);
 	}
 
 	private Point2D findNearest(Point2D p) {
-		final Point2D floor = bst.floor(p);
-		return floor != null ? floor : bst.ceiling(p);
+		double distance = Double.MAX_VALUE;
+		Point2D nearest = null;
+		Iterator<Point2D> iter = bst.iterator();
+		while (iter.hasNext()) {
+			Point2D next = iter.next();
+			double temp = p.distanceSquaredTo(next);
+			if (temp < distance) {
+				distance = temp;
+				nearest = next;
+			}
+		}
+		return nearest;
 	}
 
 	// unit testing of the methods (optional)
 	public static void main(String[] args) {
+		String filename = "./samples/input10.txt";
+		In in = new In(filename);
+		PointSET brute = new PointSET();
+		while (!in.isEmpty()) {
+			double x = in.readDouble();
+			double y = in.readDouble();
+			Point2D p = new Point2D(x, y);
+			brute.insert(p);
+		}
 
+		System.out.println("nearest to " + MIN + ": " + brute.nearest(MIN));
+		System.out.println("nearest to " + MIN + ": " + brute.nearest(MAX));
+
+		Point2D exact = new Point2D(0.226, 0.577);
+		System.out.println("nearest to " + exact + ": " + brute.nearest(exact));
+
+		Point2D t1 = new Point2D(0.226, 0.567);
+		System.out.println("nearest to " + t1 + ": " + brute.nearest(t1));
+
+		Point2D t2 = new Point2D(0.216, 0.577);
+		System.out.println("nearest to " + t2 + ": " + brute.nearest(t2));
+
+		Point2D t3 = new Point2D(0.905, 0.017);
+		System.out.println("nearest to " + t3 + ": " + brute.nearest(t3));
 	}
 }
