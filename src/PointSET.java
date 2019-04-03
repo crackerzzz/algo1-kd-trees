@@ -66,7 +66,7 @@ public class PointSET {
 	private Point2D findNearest(Point2D p) {
 		double distance = Double.MAX_VALUE;
 		Point2D nearest = null;
-		Iterator<Point2D> iter = bst.iterator();
+		final Iterator<Point2D> iter = bst.iterator();
 		while (iter.hasNext()) {
 			Point2D next = iter.next();
 			double temp = p.distanceSquaredTo(next);
