@@ -1,4 +1,6 @@
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Set;
 import java.util.TreeSet;
 
 import edu.princeton.cs.algs4.In;
@@ -52,7 +54,21 @@ public class PointSET {
 		if (rect == null) {
 			throw new IllegalArgumentException();
 		}
-		return bst.subSet(new Point2D(rect.xmin(), rect.ymin()), true, new Point2D(rect.xmax(), rect.ymax()), true);
+		return findRange(rect);
+	}
+
+	private Iterable<Point2D> findRange(RectHV rect) {
+		final Set<Point2D> range = new HashSet<>();
+
+		final Iterator<Point2D> iter = bst.iterator();
+		while (iter.hasNext()) {
+			final Point2D next = iter.next();
+			if (next.y() >= rect.ymin() && next.y() <= rect.ymax() && next.x() >= rect.xmin()
+					&& next.x() <= rect.xmax()) {
+				range.add(next);
+			}
+		}
+		return range;
 	}
 
 	// a nearest neighbor in the set to point p; null if the set is empty
@@ -90,19 +106,22 @@ public class PointSET {
 			brute.insert(p);
 		}
 
-		System.out.println("nearest to " + MIN + ": " + brute.nearest(MIN));
-		System.out.println("nearest to " + MIN + ": " + brute.nearest(MAX));
+//		System.out.println("nearest to " + MIN + ": " + brute.nearest(MIN));
+//		System.out.println("nearest to " + MIN + ": " + brute.nearest(MAX));
+//
+//		Point2D exact = new Point2D(0.226, 0.577);
+//		System.out.println("nearest to " + exact + ": " + brute.nearest(exact));
+//
+//		Point2D t1 = new Point2D(0.226, 0.567);
+//		System.out.println("nearest to " + t1 + ": " + brute.nearest(t1));
+//
+//		Point2D t2 = new Point2D(0.216, 0.577);
+//		System.out.println("nearest to " + t2 + ": " + brute.nearest(t2));
+//
+//		Point2D t3 = new Point2D(0.905, 0.017);
+//		System.out.println("nearest to " + t3 + ": " + brute.nearest(t3));
 
-		Point2D exact = new Point2D(0.226, 0.577);
-		System.out.println("nearest to " + exact + ": " + brute.nearest(exact));
-
-		Point2D t1 = new Point2D(0.226, 0.567);
-		System.out.println("nearest to " + t1 + ": " + brute.nearest(t1));
-
-		Point2D t2 = new Point2D(0.216, 0.577);
-		System.out.println("nearest to " + t2 + ": " + brute.nearest(t2));
-
-		Point2D t3 = new Point2D(0.905, 0.017);
-		System.out.println("nearest to " + t3 + ": " + brute.nearest(t3));
+		Iterable<Point2D> range = brute.range(new RectHV(0, 0, 0.15, 0.18));
+		System.out.println("range: " + range);
 	}
 }
