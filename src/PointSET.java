@@ -53,7 +53,8 @@ public class PointSET {
 	public Iterable<Point2D> range(RectHV rect) {
 		if (rect == null) {
 			throw new IllegalArgumentException();
-		}
+		}	
+		System.out.println(rect);
 		return findRange(rect);
 	}
 
