@@ -1,5 +1,7 @@
 import java.awt.Color;
 import java.util.Comparator;
+import java.util.HashSet;
+import java.util.Set;
 
 import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.Point2D;
@@ -146,7 +148,25 @@ public class KdTree {
 		if (rect == null) {
 			throw new IllegalArgumentException();
 		}
-		return null;
+		final Set<Point2D> points = new HashSet<>();
+		range(root, rect, points);
+		return points;
+	}
+
+	private void range(Node node, RectHV rect, Set<Point2D> points) {
+		if (node == null) {
+			return;
+		}
+		if (isNodeInRect(node.point, rect)) {
+			points.add(node.point);
+		}
+		range(node.left, rect, points);
+		range(node.right, rect, points);
+	}
+
+	private boolean isNodeInRect(Point2D point, RectHV rect) {
+		return point.x() >= rect.xmin() && point.x() <= rect.xmax() && point.y() >= rect.ymin()
+				&& point.y() <= rect.ymax();
 	}
 
 	// a nearest neighbor in the set to point p; null if the set is empty
