@@ -3,6 +3,7 @@ import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Set;
 
+import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.Point2D;
 import edu.princeton.cs.algs4.RectHV;
 import edu.princeton.cs.algs4.StdDraw;
@@ -13,12 +14,10 @@ public class KdTree {
 
 	private Node root;
 	private int count;
-	private boolean vertical;
 
 	// construct an empty set of points
 	public KdTree() {
 		this.count = 0;
-		this.vertical = true;
 	}
 
 	// is the set empty?
@@ -38,26 +37,28 @@ public class KdTree {
 		}
 		// handle root case
 		if (root == null) {
-			root = new Node(p, new RectHV(xmin, ymin, xmax, ymax), vertical);
+			root = new Node(p, new RectHV(xmin, ymin, xmax, ymax), true);
 		} else {
-			root = traverse(null, root, p, vertical);
+			root = traverse(null, root, p);
 		}
 		count++;
-		vertical = !vertical;
 	}
 
-	private Node traverse(Node parent, Node node, Point2D point, boolean vertical) {
+	private Node traverse(Node parent, Node node, Point2D point) {
 		// handle new nodes
 		if (node == null) {
 			final RectHV rect = buildContainingRect(parent, point, parent.vertical);
-			node = new Node(point, rect, vertical);
+			node = new Node(point, rect, !parent.vertical);
 		} else {
 			int cmp = findComparator(node.vertical).compare(point, node.point);
+			if (cmp == 0) {
+				return node;
+			}
 			// if given value is less than node, go left else go right
-			if (cmp < 0) {
-				node.left = traverse(node, node.left, point, !node.vertical);
+			else if (cmp < 0) {
+				node.left = traverse(node, node.left, point);
 			} else {
-				node.right = traverse(node, node.right, point, !node.vertical);
+				node.right = traverse(node, node.right, point);
 			}
 		}
 		return node;
@@ -76,9 +77,9 @@ public class KdTree {
 			// find whether point is top or bottom of parent
 			// point is to bottom if y is smaller than parent
 			if (p.y() < parent.point.y()) {
-				return new RectHV(parent.rect.xmin(), parent.rect.ymin(), parent.point.x(), parent.rect.ymax());
+				return new RectHV(parent.rect.xmin(), parent.rect.ymin(), parent.rect.xmax(), parent.point.y());
 			} else {
-				return new RectHV(parent.point.x(), parent.rect.ymin(), parent.rect.xmax(), parent.rect.ymax());
+				return new RectHV(parent.rect.xmin(), parent.point.y(), parent.rect.xmax(), parent.rect.ymax());
 			}
 		}
 	}
@@ -113,47 +114,36 @@ public class KdTree {
 
 	// draw all points to standard draw
 	public void draw() {
-		draw(root, null, true);
+		draw(root, null);
 	}
 
-	private void draw(Node node, Node parent, boolean less) {
+	private void draw(Node node, Node parent) {
 		if (node == null) {
 			return;
 		}
-		drawLine(node, parent, less);
+		drawLine(node, parent);
 		drawPoint(node.point);
 		StdDraw.show();
 
-		draw(node.left, node, true);
-		draw(node.right, node, false);
+		draw(node.left, node);
+		draw(node.right, node);
 	}
 
-	private void drawLine(Node current, Node parent, boolean less) {
+	private void drawLine(Node current, Node parent) {
 		final Point2D from;
 		final Point2D to;
+
+		// root is always vertical
 		if (parent == null) {
-			// first is always vertical
 			from = new Point2D(current.point.x(), ymin);
 			to = new Point2D(current.point.x(), ymax);
 		} else {
-			if (less) {
-				// draw to left
-				if (current.vertical) {
-					from = new Point2D(current.point.x(), ymin);
-					to = new Point2D(current.point.x(), parent.point.y());
-				} else {
-					from = new Point2D(xmin, current.point.y());
-					to = new Point2D(parent.point.x(), current.point.y());
-				}
+			if (current.vertical) {
+				from = new Point2D(current.point.x(), current.rect.ymin());
+				to = new Point2D(current.point.x(), current.rect.ymax());
 			} else {
-				// draw to right
-				if (current.vertical) {
-					from = new Point2D(current.point.x(), parent.point.y());
-					to = new Point2D(current.point.x(), ymax);
-				} else {
-					from = new Point2D(parent.point.x(), current.point.y());
-					to = new Point2D(xmax, current.point.y());
-				}
+				from = new Point2D(current.rect.xmin(), current.point.y());
+				to = new Point2D(current.rect.xmax(), current.point.y());
 			}
 		}
 		drawLine(from, to, current.vertical ? Color.RED : Color.BLUE);
@@ -225,34 +215,34 @@ public class KdTree {
 
 	@Override
 	public String toString() {
-		return "KdTree [root=" + root + ", count=" + count + ", vertical=" + vertical + "]";
+		return "KdTree [root=" + root + ", count=" + count + "]";
 	}
 
 	// unit testing of the methods (optional)
 	public static void main(String[] args) {
-//		String filename = "./samples/input10.txt";
-//		In in = new In(filename);
-//		KdTree kdTree = new KdTree();
-//		while (!in.isEmpty()) {
-//			double x = in.readDouble();
-//			double y = in.readDouble();
-//			Point2D p = new Point2D(x, y);
-//			kdTree.insert(p);
-//		}
-//		System.out.println("nearest to (0,0) : " + kdTree);
-
+		String filename = "./samples/input10.txt";
+		In in = new In(filename);
 		KdTree kdTree = new KdTree();
-		kdTree.insert(new Point2D(0.5, 0.4));
-		kdTree.insert(new Point2D(0.2, 0.6));
-		kdTree.insert(new Point2D(0.7, 0.4));
+		while (!in.isEmpty()) {
+			double x = in.readDouble();
+			double y = in.readDouble();
+			Point2D p = new Point2D(x, y);
+			kdTree.insert(p);
+		}
+		System.out.println("nearest to (0,0) : " + kdTree);
 
-		kdTree.insert(new Point2D(0.1, 0.8));
-		kdTree.insert(new Point2D(0.3, 0.3));
-
-		kdTree.insert(new Point2D(0.8, 0.8));
-		kdTree.insert(new Point2D(0.1, 0.6));
-
-		System.out.println("kdTree : " + kdTree);
+//		KdTree kdTree = new KdTree();
+//		kdTree.insert(new Point2D(0.5, 0.4));
+//		kdTree.insert(new Point2D(0.2, 0.6));
+//		kdTree.insert(new Point2D(0.7, 0.4));
+//
+//		kdTree.insert(new Point2D(0.1, 0.8));
+//		kdTree.insert(new Point2D(0.3, 0.3));
+//
+//		kdTree.insert(new Point2D(0.8, 0.8));
+//		kdTree.insert(new Point2D(0.1, 0.6));
+//
+//		System.out.println("kdTree : " + kdTree);
 	}
 
 }
