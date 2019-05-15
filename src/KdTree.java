@@ -114,37 +114,30 @@ public class KdTree {
 
 	// draw all points to standard draw
 	public void draw() {
-		draw(root, null);
+		draw(root);
 	}
 
-	private void draw(Node node, Node parent) {
+	private void draw(Node node) {
 		if (node == null) {
 			return;
 		}
-		drawLine(node, parent);
+		drawLine(node);
 		drawPoint(node.point);
 		StdDraw.show();
 
-		draw(node.left, node);
-		draw(node.right, node);
+		draw(node.left);
+		draw(node.right);
 	}
 
-	private void drawLine(Node current, Node parent) {
+	private void drawLine(Node current) {
 		final Point2D from;
 		final Point2D to;
-
-		// root is always vertical
-		if (parent == null) {
-			from = new Point2D(current.point.x(), ymin);
-			to = new Point2D(current.point.x(), ymax);
+		if (current.vertical) {
+			from = new Point2D(current.point.x(), current.rect.ymin());
+			to = new Point2D(current.point.x(), current.rect.ymax());
 		} else {
-			if (current.vertical) {
-				from = new Point2D(current.point.x(), current.rect.ymin());
-				to = new Point2D(current.point.x(), current.rect.ymax());
-			} else {
-				from = new Point2D(current.rect.xmin(), current.point.y());
-				to = new Point2D(current.rect.xmax(), current.point.y());
-			}
+			from = new Point2D(current.rect.xmin(), current.point.y());
+			to = new Point2D(current.rect.xmax(), current.point.y());
 		}
 		drawLine(from, to, current.vertical ? Color.RED : Color.BLUE);
 	}
