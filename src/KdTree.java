@@ -1,7 +1,6 @@
 import java.awt.Color;
 import java.util.Comparator;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.Set;
 
 import edu.princeton.cs.algs4.In;
@@ -123,7 +122,7 @@ public class KdTree {
 			return;
 		}
 		drawLine(node);
-		drawPoint(node.point);
+		drawPoint(node.point, node.vertical);
 		StdDraw.show();
 
 		draw(node.left);
@@ -149,9 +148,9 @@ public class KdTree {
 		StdDraw.line(from.x(), from.y(), to.x(), to.y());
 	}
 
-	private void drawPoint(Point2D point) {
+	private void drawPoint(Point2D point, boolean vertical) {
 		StdDraw.setPenRadius(0.01);
-		StdDraw.setPenColor(StdDraw.BLACK);
+		StdDraw.setPenColor(vertical ? StdDraw.BLACK : StdDraw.BLUE);
 		point.draw();
 	}
 
@@ -188,48 +187,55 @@ public class KdTree {
 	}
 
 	private Point2D findNearest(Node node, Point2D p) {
-		LinkedList<Point2D> best = new LinkedList<>();
-		best.add(node.point);
-		findNearest(node, p, best);
-		System.out.println("Nearest: " + best.get(0));
-		return best.get(0);
+		Nearest nearest = new Nearest();
+		findNearest(node, p, nearest);
+//		System.out.println("Nearest: " + nearest.p);
+		return nearest.p;
 	}
 
-	private void findNearest(Node node, Point2D queryPoint, LinkedList<Point2D> best) {
+	private void findNearest(Node node, Point2D p, Nearest nearest) {
 		if (node == null) {
 			return;
-		} else {
-			// only traverse new point is closer to rect than previous best
-			if (node.rect.distanceSquaredTo(queryPoint) <= node.rect.distanceSquaredTo(best.getFirst())) {
-				best.removeFirst();
-				best.add(node.point);
+		}
 
-				final Node nodeToTraverseFirst;
-				final Node nodeToTraverseNext;
-				if (node.vertical) {
-					if (queryPoint.x() < node.point.x()) {
-						nodeToTraverseFirst = node.left;
-						nodeToTraverseNext = node.right;
-					} else {
-						nodeToTraverseFirst = node.right;
-						nodeToTraverseNext = node.left;
-					}
-				} else {
-					if (queryPoint.y() < node.point.y()) {
-						nodeToTraverseFirst = node.left;
-						nodeToTraverseNext = node.right;
-					} else {
-						nodeToTraverseFirst = node.right;
-						nodeToTraverseNext = node.left;
-					}
-				}
-				findNearest(nodeToTraverseFirst, queryPoint, best);
-				findNearest(nodeToTraverseNext, queryPoint, best);
+		if (nearest.p == null) {
+			nearest.p = node.point;
+			nearest.distance = p.distanceSquaredTo(node.point);
+		} else {
+			final double dist = p.distanceSquaredTo(node.point);
+			if (p.distanceSquaredTo(node.point) < nearest.distance) {
+				nearest.p = node.point;
+				nearest.distance = dist;
 			}
+		}
+
+		final Node nodeToTraverseFirst;
+		final Node nodeToTraverseNext;
+		if (node.vertical) {
+			if (p.x() <= node.point.x()) {
+				nodeToTraverseFirst = node.left;
+				nodeToTraverseNext = node.right;
+			} else {
+				nodeToTraverseFirst = node.right;
+				nodeToTraverseNext = node.left;
+			}
+		} else {
+			if (p.y() <= node.point.y()) {
+				nodeToTraverseFirst = node.left;
+				nodeToTraverseNext = node.right;
+			} else {
+				nodeToTraverseFirst = node.right;
+				nodeToTraverseNext = node.left;
+			}
+		}
+		findNearest(nodeToTraverseFirst, p, nearest);
+		if (nodeToTraverseNext != null
+				&& nodeToTraverseNext.rect.distanceSquaredTo(p) < nearest.p.distanceSquaredTo(p)) {
+			findNearest(nodeToTraverseNext, p, nearest);
 		}
 	}
 
-	private class Node {
+	private static class Node {
 		private final Point2D point;
 		private final boolean vertical;
 		private final RectHV rect;
@@ -246,7 +252,11 @@ public class KdTree {
 			return "Node [point=" + point + ", vertical=" + vertical + ", rect=" + rect + ", left=" + left + ", right="
 					+ right + "]";
 		}
+	}
 
+	private static class Nearest {
+		private Point2D p;
+		private double distance;
 	}
 
 	@Override
