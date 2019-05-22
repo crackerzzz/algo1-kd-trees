@@ -8,8 +8,6 @@ import edu.princeton.cs.algs4.Point2D;
 import edu.princeton.cs.algs4.RectHV;
 
 public class PointSET {
-	public static final Point2D MIN = new Point2D(0.0, 0.0);
-	public static final Point2D MAX = new Point2D(1.0, 1.0);
 	private final TreeSet<Point2D> bst;
 
 	// construct an empty set of points

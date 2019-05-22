@@ -9,8 +9,8 @@ import edu.princeton.cs.algs4.RectHV;
 import edu.princeton.cs.algs4.StdDraw;
 
 public class KdTree {
-	public static final double xmin = 0.0, ymin = 0.0; // initial endpoint of rectangle
-	public static final double xmax = 1.0, ymax = 1.0; // current location of mouse
+	private static final double xmin = 0.0, ymin = 0.0; // initial endpoint of rectangle
+	private static final double xmax = 1.0, ymax = 1.0; // current location of mouse
 
 	private Node root;
 	private int count;
