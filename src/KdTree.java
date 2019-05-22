@@ -1,7 +1,7 @@
 import java.awt.Color;
+import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.List;
 
 import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.Point2D;
@@ -39,26 +39,28 @@ public class KdTree {
 		if (root == null) {
 			root = new Node(p, new RectHV(xmin, ymin, xmax, ymax), true);
 		} else {
-			root = traverse(null, root, p);
+			root = insert(null, root, p);
 		}
-		count++;
+		
 	}
 
-	private Node traverse(Node parent, Node node, Point2D point) {
+	private Node insert(Node parent, Node node, Point2D point) {
 		// handle new nodes
 		if (node == null) {
 			final RectHV rect = buildContainingRect(parent, point, parent.vertical);
 			node = new Node(point, rect, !parent.vertical);
+			count++;
 		} else {
-			int cmp = findComparator(node.vertical).compare(point, node.point);
-			if (cmp == 0) {
+			// ignore existing nodes
+			if (node.point.equals(point)) {
 				return node;
 			}
+			int cmp = findComparator(node.vertical).compare(point, node.point);
 			// if given value is less than node, go left else go right
-			else if (cmp < 0) {
-				node.left = traverse(node, node.left, point);
+			if (cmp < 0) {
+				node.left = insert(node, node.left, point);
 			} else {
-				node.right = traverse(node, node.right, point);
+				node.right = insert(node, node.right, point);
 			}
 		}
 		return node;
@@ -159,12 +161,12 @@ public class KdTree {
 		if (rect == null) {
 			throw new IllegalArgumentException();
 		}
-		final Set<Point2D> points = new HashSet<>();
+		final List<Point2D> points = new ArrayList<>();
 		range(root, rect, points);
 		return points;
 	}
 
-	private void range(Node node, RectHV rect, Set<Point2D> points) {
+	private void range(Node node, RectHV rect, List<Point2D> points) {
 		if (node == null) {
 			return;
 		} else {
@@ -247,26 +249,26 @@ public class KdTree {
 			this.vertical = vertical;
 		}
 
-		@Override
-		public String toString() {
-			return "Node [point=" + point + ", vertical=" + vertical + ", rect=" + rect + ", left=" + left + ", right="
-					+ right + "]";
-		}
+//		@Override
+//		public String toString() {
+//			return "Node [point=" + point + ", vertical=" + vertical + ", rect=" + rect + ", left=" + left + ", right="
+//					+ right + "]";
+//		}
 	}
 
 	private static class Nearest {
 		private Point2D p;
 		private double distance;
 	}
-
-	@Override
-	public String toString() {
-		return "KdTree [root=" + root + ", count=" + count + "]";
-	}
+//
+//	@Override
+//	public String toString() {
+//		return "KdTree [root=" + root + ", count=" + count + "]";
+//	}
 
 	// unit testing of the methods (optional)
 	public static void main(String[] args) {
-		String filename = "./samples/input10.txt";
+		String filename = "./samples/input-sampler.txt";
 		In in = new In(filename);
 		KdTree kdTree = new KdTree();
 		while (!in.isEmpty()) {
@@ -275,7 +277,8 @@ public class KdTree {
 			Point2D p = new Point2D(x, y);
 			kdTree.insert(p);
 		}
-		System.out.println("nearest to (0,0) : " + kdTree);
+		System.out.println("kdtree : Done");
+		System.out.println("contains(0.75, 0.75) : " + kdTree.contains(new Point2D(0.75, 0.75)));
 
 //		KdTree kdTree = new KdTree();
 //		kdTree.insert(new Point2D(0.5, 0.4));

@@ -1,6 +1,6 @@
-import java.util.HashSet;
+import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.Set;
+import java.util.List;
 import java.util.TreeSet;
 
 import edu.princeton.cs.algs4.In;
@@ -57,7 +57,7 @@ public class PointSET {
 	}
 
 	private Iterable<Point2D> findRange(RectHV rect) {
-		final Set<Point2D> range = new HashSet<>();
+		final List<Point2D> range = new ArrayList<>();
 
 		final Iterator<Point2D> iter = bst.iterator();
 		while (iter.hasNext()) {
