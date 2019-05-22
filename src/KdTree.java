@@ -38,6 +38,7 @@ public class KdTree {
 		// handle root case
 		if (root == null) {
 			root = new Node(p, new RectHV(xmin, ymin, xmax, ymax), true);
+			count++;
 		} else {
 			root = insert(null, root, p);
 		}
