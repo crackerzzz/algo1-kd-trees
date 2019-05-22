@@ -54,7 +54,7 @@ public class PointSET {
 		if (rect == null) {
 			throw new IllegalArgumentException();
 		}	
-		System.out.println(rect);
+		//System.out.println(rect);
 		return findRange(rect);
 	}
 
